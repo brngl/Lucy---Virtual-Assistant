@@ -3,7 +3,7 @@ import pyttsx3
 import pywhatkit
 import wikipedia
 import pyjokes
-import datetime 
+import datetime
 import webbrowser
 import subprocess
 import winsound
@@ -17,23 +17,23 @@ engine.setProperty("rate", 165)
 engine.say('Sono Lucy, cosa posso fare per te?')
 engine.runAndWait()
 
-def talk(text):  
+
+def talk(text):
     engine.say(text)
     engine.runAndWait()
-    
+
+
 def take_command():
-    try:
-        with sr.Microphone() as source:
-            print("Sto ascoltando...")
-            voice= listener.record(source,duration=3)
-            command= listener.recognize_google(voice, language="it-IT")
-            command= command.lower()
-            if 'lucy' in command:
-                command = command.replace('lucy', '')
-                print(command)           
-    except:
-        pass
+    with sr.Microphone() as source:
+        print("Sto ascoltando...")
+        voice = listener.record(source, duration=3)
+        command = listener.recognize_google(voice, language="it-IT")
+        command = command.lower()
+        if 'lucy' in command:
+            command = command.replace('lucy', '')
+            print(command)
     return command
+
 
 def note(text):
     date= datetime.datetime.now()
@@ -42,7 +42,8 @@ def note(text):
         f.write(text)
     subprocess.Popen(["notepad.exe", file_name])
 
-def sveglia(text):
+
+def clock(text):
     alarm=text
     alarm=alarm.strftime('%H:%M:%S')
     talk('Sveglia impostata')
@@ -54,14 +55,16 @@ def sveglia(text):
             break
         else:
             pass
-        
+
+
 def find_all(name, path):
     result = []
     for root, dirs, files in os.walk(path):
         if name in files:
             result.append(os.path.join(root, name))
     return result
-            
+
+
 #MAIN
 def run_lucy():
     command= take_command()
@@ -84,7 +87,7 @@ def run_lucy():
     elif "jokes" in command:
         talk(pyjokes.get_joke())
     elif "ore" in command:
-        time= datetime.datetime.now().strftime('%H:%M') 
+        time= datetime.datetime.now().strftime('%H:%M')
         print(time)
         talk(time)
     elif "giorno" in command:
@@ -112,10 +115,11 @@ def run_lucy():
         orario = orario.replace('alle', '')
         orario_x= datetime.datetime.strptime(orario, " %H:%M").time()
         print(orario_x)
-        sveglia(orario_x)
+        clock(orario_x)
     else:
         talk('Perfavore ripeti il comando')
         run_lucy()
+
 
 run_lucy()
 
