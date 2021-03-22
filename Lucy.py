@@ -122,7 +122,7 @@ class Clock(Thread):
 
     def run(self):
         while True:
-            now = self.getTime()
+            now = self.get_time()
             if self.alarm == now:
                 winsound.PlaySound("alarmclock.wav", winsound.SND_ASYNC)
                 return
