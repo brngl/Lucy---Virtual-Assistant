@@ -1,3 +1,4 @@
+from threading import Thread
 import speech_recognition as sr
 import pyttsx3
 import pywhatkit
@@ -9,9 +10,9 @@ import subprocess
 import winsound
 import os
 
-listener= sr.Recognizer()
-engine= pyttsx3.init()
-voices=engine.getProperty("voices")
+listener = sr.Recognizer()
+engine = pyttsx3.init()
+voices = engine.getProperty("voices")
 engine.setProperty('voice', voices[0].id)
 engine.setProperty("rate", 165)
 engine.say('Sono Lucy, cosa posso fare per te?')
@@ -44,17 +45,8 @@ def note(text):
 
 
 def clock(text):
-    alarm=text
-    alarm=alarm.strftime('%H:%M:%S')
-    talk('Sveglia impostata')
-    print('Sveglia impostata')
-    while True:
-        now=datetime.datetime.now().time().replace(microsecond=0).strftime('%H:%M:%S')
-        if alarm==now:
-            winsound.PlaySound("alarmclock.wav", winsound.SND_ASYNC)
-            break
-        else:
-            pass
+    c = Clock(text)
+    c.start()
 
 
 def find_all(name, path):
@@ -67,58 +59,76 @@ def find_all(name, path):
 
 #MAIN
 def run_lucy():
-    command= take_command()
+    command = take_command()
     print(command)
     if "una canzone" in command:
         talk("Quale canzone?")
-        song=take_command()
+        song = take_command()
         talk(song)
         pywhatkit.playonyt(song)
     elif "chi è" in command:
         wikipedia.set_lang("it")
-        person= command.replace("chi è","")
-        info= wikipedia.summary(person,2)
+        person = command.replace("chi è", "")
+        info = wikipedia.summary(person,2)
         talk(info)
     elif "che cos'è" in command:
         wikipedia.set_lang("it")
-        thing= command.replace("che cos'è","")
-        info2= wikipedia.summary(thing,2)
+        thing = command.replace("che cos'è", "")
+        info2 = wikipedia.summary(thing,2)
         talk(info2)
     elif "jokes" in command:
         talk(pyjokes.get_joke())
     elif "ore" in command:
-        time= datetime.datetime.now().strftime('%H:%M')
+        time = datetime.datetime.now().strftime('%H:%M')
         print(time)
         talk(time)
     elif "giorno" in command:
-        giorno= datetime.date.today().strftime("%d/%m/%Y")
+        giorno = datetime.date.today().strftime("%d/%m/%Y")
         talk(giorno)
     elif "cerca su google" in command:
         talk('Cosa devo cercare?')
-        search=take_command()
-        url= "https://www.google.com/search?q=" + search
+        search = take_command()
+        url = "https://www.google.com/search?q=" + search
         webbrowser.get().open(url)
     elif "cerca un luogo" in command:
         talk('Quale luogo?')
-        luogo=take_command()
-        url= "https://www.google.nl/maps/place/" + luogo +"/&amp"
+        luogo = take_command()
+        url = "https://www.google.nl/maps/place/" + luogo +"/&amp"
         webbrowser.get().open(url)
     elif "scrivi una nota" in command:
         talk('Cosa vuoi che scriva?')
-        nota=take_command()
+        nota = take_command()
         note(nota)
     elif "apri google chrome" in command:
         subprocess.Popen(['C:\Program Files (x86)\Google\Chrome\Application\chrome.exe', '-new-tab'])
     elif "imposta una sveglia" in command:
         talk('A che ora?')
-        orario=take_command()
+        orario = take_command()
         orario = orario.replace('alle', '')
-        orario_x= datetime.datetime.strptime(orario, " %H:%M").time()
+        orario_x = datetime.datetime.strptime(orario, " %H:%M").time()
         print(orario_x)
         clock(orario_x)
     else:
         talk('Perfavore ripeti il comando')
         run_lucy()
+
+
+class Clock(Thread):
+    def __init__(self, text):
+        self.alarm = text
+        self.alarm = self.alarm.strftime('%H:%M:%S')
+        talk('Sveglia impostata')
+        print('Sveglia impostata')
+
+    def run(self):
+        while True:
+            now = self.getTime()
+            if self.alarm == now:
+                winsound.PlaySound("alarmclock.wav", winsound.SND_ASYNC)
+                return
+
+    def get_time(self):
+        return datetime.datetime.now().time().replace(microsecond=0).strftime('%H:%M:%S')
 
 
 run_lucy()
